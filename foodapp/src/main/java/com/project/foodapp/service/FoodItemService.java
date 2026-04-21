@@ -2,6 +2,9 @@ package com.project.foodapp.service;
 
 import com.project.foodapp.entity.FoodItem;
 import com.project.foodapp.repository.FoodItemRepository;
+import com.project.foodapp.repository.RestaurantRepository;
+import com.project.foodapp.repository.RestaurantRepository;
+import com.project.foodapp.entity.Restaurant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +17,22 @@ public class FoodItemService {
     private FoodItemRepository repository;
 
     // ✅ Create item
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+
     public FoodItem create(FoodItem item) {
+
+        if (item.getRestaurant() == null || item.getRestaurant().getId() == null) {
+            throw new RuntimeException("Restaurant is required");
+        }
+
+        Long restaurantId = item.getRestaurant().getId();
+
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + restaurantId));
+
+        item.setRestaurant(restaurant);
+
         return repository.save(item);
     }
 
